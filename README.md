@@ -9,14 +9,22 @@ these libraries from the cache for reverse engineering.
 
 Extract the default shared cache to `/tmp/libraries`:
 
-```bash
+```sh
 dyld-shared-cache-extractor /System/Library/dyld/dyld_shared_cache_arm64e /tmp/libraries
 ```
 
 ## Installation
 
-```bash
-brew install dyld-shared-cache-extractor
+[Homebrew](https://brew.sh):
+
+```sh
+brew install keith/formulae/dyld-shared-cache-extractor
+```
+
+Manually, after [installing rust](https://rustup.rs):
+
+```sh
+cargo install --locked --path .
 ```
 
 ## More details
