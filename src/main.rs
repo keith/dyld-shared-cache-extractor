@@ -5,8 +5,8 @@ use std::ffi::CString;
 use std::os::raw::c_char;
 use std::path::PathBuf;
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const AUTHOR: &'static str = env!("CARGO_PKG_AUTHORS");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
 
 #[derive(Clap)]
 #[clap(version = VERSION, author = AUTHOR)]
