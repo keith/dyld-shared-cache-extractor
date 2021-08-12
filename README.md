@@ -40,8 +40,9 @@ caches.
 
 The problem with the 2 options above is that they can lag behind format
 changes in the shared cache. This tool loads the private
-`dsc_extractor.bundle` from Xcode, meaning whichever it should always be
-able to extract the newest versions of the file for beta OS versions.
+`dsc_extractor.bundle` from Xcode, meaning it should always be able to
+extract the shared cache files even from beta OS versions (potentially
+using a beta Xcode version).
 
 This logic is based on the function at the bottom of
 `dyld3/shared-cache/dsc_extractor.cpp` from the `dyld` [source
