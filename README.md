@@ -21,10 +21,12 @@ dyld-shared-cache-extractor /System/Library/dyld/dyld_shared_cache_arm64e /tmp/l
 brew install keith/formulae/dyld-shared-cache-extractor
 ```
 
-Manually, after [installing rust](https://rustup.rs):
+Manually:
 
 ```sh
-cargo install --locked --path .
+cmake -B build
+cmake --build build
+cmake --install build
 ```
 
 ## More details
