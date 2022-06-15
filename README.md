@@ -13,6 +13,18 @@ Extract the default shared cache to `/tmp/libraries`:
 dyld-shared-cache-extractor /System/Library/dyld/dyld_shared_cache_arm64e /tmp/libraries
 ```
 
+If this fails it could be because the shared cache format has changed,
+and the version you're trying to extract isn't supported by the version
+of Xcode you have selected globally (which you can view with
+`xcode-select -p` and `xcodebuild -version`). In this case you might
+have to download a newer version of Xcode (potentially a beta version if
+you're trying to extract the cache from a beta OS version) and override
+the Xcode version when running `dyld-shared-cache-extractor`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app dyld-shared-cache-extractor /System/Library/dyld/dyld_shared_cache_arm64e /tmp/libraries
+```
+
 ## Installation
 
 [Homebrew](https://brew.sh):
