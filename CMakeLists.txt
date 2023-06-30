@@ -10,5 +10,5 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 add_executable(dyld-shared-cache-extractor dyld-shared-cache-extractor.c)
-target_compile_options(dyld-shared-cache-extractor PRIVATE -g -Weverything)
+target_compile_options(dyld-shared-cache-extractor PRIVATE -g -Wall -Wextra)
 install(TARGETS dyld-shared-cache-extractor)
