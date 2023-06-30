@@ -1,5 +1,5 @@
-project(dyld-shared-cache-extractor LANGUAGES C)
 cmake_minimum_required(VERSION 3.21)
+project(dyld-shared-cache-extractor LANGUAGES C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
