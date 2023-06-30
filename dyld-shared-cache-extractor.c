@@ -7,8 +7,8 @@
 
 #define PATH_SIZE 200
 
-static void (*extract)(const char *cache_path, const char *output_path,
-                       void (^progress)(int, int));
+static int (*extract)(const char *cache_path, const char *output_path,
+                      void (^progress)(int, int));
 
 static int get_library_path(char *output) {
   FILE *pipe = popen("xcrun --sdk iphoneos --show-sdk-platform-path", "r");
@@ -34,9 +34,9 @@ fail(const char *error, ...) {
   exit(EXIT_FAILURE);
 }
 
-static void extract_shared_cache(const char *library_path,
-                                 const char *cache_path,
-                                 const char *output_path) {
+static int extract_shared_cache(const char *library_path,
+                                const char *cache_path,
+                                const char *output_path) {
   void *handle = dlopen(library_path, RTLD_LAZY);
   if (!handle)
     fail("error: failed to load bundle: %s\n", library_path);
@@ -47,7 +47,7 @@ static void extract_shared_cache(const char *library_path,
   if (!extract)
     fail("error: failed to load function from bundle: %s\n", library_path);
 
-  extract(cache_path, output_path, ^void(int completed, int total) {
+  return extract(cache_path, output_path, ^void(int completed, int total) {
     printf("extracted %d/%d\n", completed, total);
   });
 }
@@ -70,6 +70,5 @@ int main(int argc, char *argv[]) {
          library_path);
 
   const char *output_path = argv[2];
-  extract_shared_cache(library_path, shared_cache, output_path);
-  return 0;
+  return extract_shared_cache(library_path, shared_cache, output_path);
 }
