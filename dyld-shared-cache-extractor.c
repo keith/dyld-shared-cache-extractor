@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/syslimits.h>
+#include <unistd.h>
 
 static int (*extract)(const char *cache_path, const char *output_path,
-            void (^progress)(int, int));
+                      void (^progress)(int, int));
 
-static int get_library_path(const char* candidate, char *output) {
+static int get_library_path(const char *candidate, char *output) {
   if (candidate) {
     strncpy(output, candidate, PATH_MAX);
     return 0;
@@ -45,13 +45,14 @@ fail(const char *error, ...) {
 }
 
 static int extract_shared_cache(const char *library_path,
-                const char *cache_path,
-                const char *output_path) {
+                                const char *cache_path,
+                                const char *output_path) {
   void *handle = dlopen(library_path, RTLD_LAZY);
   if (!handle)
     fail("error: failed to load bundle: %s\n", library_path);
 
-  *(void **)(&extract) = dlsym(handle, "dyld_shared_cache_extract_dylibs_progress");
+  *(void **)(&extract) =
+      dlsym(handle, "dyld_shared_cache_extract_dylibs_progress");
 
   if (!extract)
     fail("error: failed to load function from bundle: %s\n", library_path);
@@ -63,7 +64,9 @@ static int extract_shared_cache(const char *library_path,
 
 int main(int argc, char *argv[]) {
   if (!(argc == 3 || argc == 4))
-    fail("Usage: %s <shared-cache-path> <output-path> [<dsc_extractor.bundle-path>]\n", argv[0]);
+    fail("Usage: %s <shared-cache-path> <output-path> "
+         "[<dsc_extractor.bundle-path>]\n",
+         argv[0]);
 
   const char *shared_cache = argv[1];
   if (access(shared_cache, R_OK) != 0)
@@ -75,8 +78,9 @@ int main(int argc, char *argv[]) {
     fail("error: failed to fetch Xcode path\n");
 
   if (access(library_path, R_OK) != 0)
-    fail("error: dsc_extractor.bundle wasn't found at expected path %s. Install Xcode or provide path as argument\n",
-       library_path);
+    fail("error: dsc_extractor.bundle wasn't found at expected path %s. "
+         "Install Xcode or provide path as argument\n",
+         library_path);
   printf("dsc_extractor.bundle found at %s\n", library_path);
 
   const char *output_path = argv[2];
