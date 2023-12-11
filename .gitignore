@@ -1,4 +1,4 @@
 .cache
-/build
+/build*
 /target
 compile_commands.json
