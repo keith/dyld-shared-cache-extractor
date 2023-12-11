@@ -10,7 +10,9 @@ these libraries from the cache for reverse engineering.
 Extract the default shared cache to `/tmp/libraries`:
 
 ```sh
-dyld-shared-cache-extractor /System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld/dyld_shared_cache_arm64e /tmp/libraries
+dyld-shared-cache-extractor \
+   /System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld/dyld_shared_cache_arm64e \
+   /tmp/libraries
 ```
 
 If this fails it could be because the shared cache format has changed,
@@ -22,14 +24,30 @@ you're trying to extract the cache from a beta OS version) and override
 the Xcode version when running `dyld-shared-cache-extractor`:
 
 ```sh
-DEVELOPER_DIR=/Applications/Xcode-beta.app dyld-shared-cache-extractor /System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld/dyld_shared_cache_arm64e /tmp/libraries
+DEVELOPER_DIR=/Applications/Xcode-beta.app \
+   dyld-shared-cache-extractor \
+   /System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld/dyld_shared_cache_arm64e \
+   /tmp/libraries
+```
+
+If you want to prefer the system installation of `dsc_extractor.bundle`
+instead of Xcode's version, you can pass it manually on the command
+line:
+
+```sh
+dyld-shared-cache-extractor \
+   /System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld/dyld_shared_cache_arm64e \
+   /tmp/libraries \
+   /usr/lib/dsc_extractor.bundle
 ```
 
 On macOS versions before Ventura the shared cache was in a different
 location, you can extract on older macOS versions with:
 
 ```sh
-dyld-shared-cache-extractor /System/Library/dyld/dyld_shared_cache_arm64e /tmp/libraries
+dyld-shared-cache-extractor \
+   /System/Library/dyld/dyld_shared_cache_arm64e \
+   /tmp/libraries
 ```
 
 ## Installation
