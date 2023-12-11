@@ -7,11 +7,26 @@
 #include <sys/syslimits.h>
 #include <unistd.h>
 
+__attribute__((noreturn))
+__attribute__((__format__(__printf__, 1, 0))) static void
+fail(const char *error, ...) {
+  va_list args;
+  va_start(args, error);
+  vfprintf(stderr, error, args);
+  va_end(args);
+  exit(EXIT_FAILURE);
+}
+
 static int (*extract)(const char *cache_path, const char *output_path,
                       void (^progress)(int, int));
 
 static int get_library_path(const char *candidate, char *output) {
   if (candidate) {
+    if (access(candidate, R_OK) != 0) {
+      fail("error: dsc_extractor.bundle not found at provided path: %s\n",
+           candidate);
+    }
+
     strncpy(output, candidate, PATH_MAX);
     return 0;
   }
@@ -31,16 +46,6 @@ static int get_library_path(const char *candidate, char *output) {
   }
 
   return 1;
-}
-
-__attribute__((noreturn))
-__attribute__((__format__(__printf__, 1, 0))) static void
-fail(const char *error, ...) {
-  va_list args;
-  va_start(args, error);
-  vfprintf(stderr, error, args);
-  va_end(args);
-  exit(EXIT_FAILURE);
 }
 
 static int extract_shared_cache(const char *library_path,
@@ -71,9 +76,9 @@ int main(int argc, char *argv[]) {
   if (access(shared_cache, R_OK) != 0)
     fail("error: shared cache path doesn't exist: %s\n", shared_cache);
 
-  const char *libraryCandidate = argc == 4 ? argv[3] : NULL;
+  const char *library_candidate = argc == 4 ? argv[3] : NULL;
   char library_path[PATH_MAX];
-  if (get_library_path(libraryCandidate, library_path) != 0)
+  if (get_library_path(library_candidate, library_path) != 0)
     fail("error: failed to fetch Xcode path\n");
 
   if (access(library_path, R_OK) != 0)
