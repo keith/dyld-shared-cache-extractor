@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <dlfcn.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -15,23 +16,21 @@ static int get_library_path(const char *candidate, char *output) {
     return 0;
   }
 
+  FILE *pipe = popen("xcrun --sdk iphoneos --show-sdk-platform-path", "r");
+  if (pipe && fgets(output, PATH_MAX, pipe) != NULL) {
+    output[strlen(output) - 1] = '\0';
+    strcat(output, "/usr/lib/dsc_extractor.bundle");
+    assert(pclose(pipe) == 0);
+    return 0;
+  }
+
   const char *builtin = "/usr/lib/dsc_extractor.bundle";
   if (access(builtin, R_OK) == 0) {
     strncpy(output, builtin, PATH_MAX);
     return 0;
   }
 
-  FILE *pipe = popen("xcrun --sdk iphoneos --show-sdk-platform-path", "r");
-  if (!pipe)
-    return 1;
-
-  if (fgets(output, PATH_MAX, pipe) == NULL)
-    return 1;
-
-  output[strlen(output) - 1] = '\0';
-  strcat(output, "/usr/lib/dsc_extractor.bundle");
-
-  return pclose(pipe);
+  return 1;
 }
 
 __attribute__((noreturn))
