@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(dyld-shared-cache-extractor LANGUAGES C)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 if(NOT CMAKE_BUILD_TYPE)

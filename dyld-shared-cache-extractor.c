@@ -4,18 +4,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#define PATH_SIZE 200
+#include <sys/syslimits.h>
 
 static int (*extract)(const char *cache_path, const char *output_path,
-                      void (^progress)(int, int));
+            void (^progress)(int, int));
 
-static int get_library_path(char *output) {
+static int get_library_path(const char* candidate, char *output) {
+  if (candidate) {
+    strncpy(output, candidate, PATH_MAX);
+    return 0;
+  }
+
+  const char *builtin = "/usr/lib/dsc_extractor.bundle";
+  if (access(builtin, R_OK) == 0) {
+    strncpy(output, builtin, PATH_MAX);
+    return 0;
+  }
+
   FILE *pipe = popen("xcrun --sdk iphoneos --show-sdk-platform-path", "r");
   if (!pipe)
     return 1;
 
-  if (fgets(output, PATH_SIZE, pipe) == NULL)
+  if (fgets(output, PATH_MAX, pipe) == NULL)
     return 1;
 
   output[strlen(output) - 1] = '\0';
@@ -35,14 +45,13 @@ fail(const char *error, ...) {
 }
 
 static int extract_shared_cache(const char *library_path,
-                                const char *cache_path,
-                                const char *output_path) {
+                const char *cache_path,
+                const char *output_path) {
   void *handle = dlopen(library_path, RTLD_LAZY);
   if (!handle)
     fail("error: failed to load bundle: %s\n", library_path);
 
-  *(void **)(&extract) =
-      dlsym(handle, "dyld_shared_cache_extract_dylibs_progress");
+  *(void **)(&extract) = dlsym(handle, "dyld_shared_cache_extract_dylibs_progress");
 
   if (!extract)
     fail("error: failed to load function from bundle: %s\n", library_path);
@@ -53,21 +62,22 @@ static int extract_shared_cache(const char *library_path,
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 3)
-    fail("Usage: %s <shared-cache-path> <output-path>\n", argv[0]);
+  if (!(argc == 3 || argc == 4))
+    fail("Usage: %s <shared-cache-path> <output-path> [<dsc_extractor.bundle-path>]\n", argv[0]);
 
   const char *shared_cache = argv[1];
   if (access(shared_cache, R_OK) != 0)
     fail("error: shared cache path doesn't exist: %s\n", shared_cache);
 
-  char library_path[PATH_SIZE];
-  if (get_library_path(library_path) != 0)
+  const char *libraryCandidate = argc == 4 ? argv[3] : NULL;
+  char library_path[PATH_MAX];
+  if (get_library_path(libraryCandidate, library_path) != 0)
     fail("error: failed to fetch Xcode path\n");
 
   if (access(library_path, R_OK) != 0)
-    fail("error: dsc_extractor.bundle wasn't found at expected path, Xcode "
-         "might have changed this location: %s\n",
-         library_path);
+    fail("error: dsc_extractor.bundle wasn't found at expected path %s. Install Xcode or provide path as argument\n",
+       library_path);
+  printf("dsc_extractor.bundle found at %s\n", library_path);
 
   const char *output_path = argv[2];
   return extract_shared_cache(library_path, shared_cache, output_path);
